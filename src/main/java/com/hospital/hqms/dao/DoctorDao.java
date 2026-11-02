@@ -36,6 +36,10 @@ public class DoctorDao extends BaseDao<Doctor> {
         return query("SELECT * FROM doctors ORDER BY specialization");
     }
 
+    public void setAvailable(int id, boolean available) {
+        update("UPDATE doctors SET available = ? WHERE id = ?", available ? 1 : 0, id);
+    }
+
     public List<Doctor> findAvailable() {
         return query("SELECT * FROM doctors WHERE available = 1 ORDER BY specialization");
     }

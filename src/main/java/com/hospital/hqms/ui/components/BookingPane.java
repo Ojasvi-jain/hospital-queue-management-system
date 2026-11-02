@@ -132,6 +132,12 @@ public class BookingPane extends HBox {
         findPatient();
     }
 
+    /** Pre-selects a doctor, e.g. when the patient clicked "Book" on the doctor directory. */
+    public void selectDoctor(int doctorId) {
+        reloadDoctors();
+        doctor.getItems().stream().filter(d -> d.getId() == doctorId).findFirst().ifPresent(doctor::setValue);
+    }
+
     public void reloadDoctors() {
         Doctor selected = doctor.getValue();
         doctor.getItems().setAll(appointmentService.getAvailableDoctors());
@@ -178,10 +184,11 @@ public class BookingPane extends HBox {
         }
         Label name = new Label(d.getName());
         name.getStyleClass().add("doctor-name");
+        HBox head = new HBox(14, Fx.avatar(d.getName(), 52), new VBox(3, name, Fx.muted(d.getQualification())));
+        head.setAlignment(Pos.CENTER_LEFT);
         sidePanel.getChildren().add(Fx.card(
                 Fx.badge(d.getSpecialization()),
-                name,
-                Fx.muted(d.getQualification()),
+                head,
                 infoLine("OPD timings", d.getTimingLabel()),
                 infoLine("Room", d.getRoom()),
                 infoLine("Slot length", d.getSlotMinutes() + " minutes"),

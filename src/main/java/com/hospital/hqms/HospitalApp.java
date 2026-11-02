@@ -5,7 +5,9 @@ import com.hospital.hqms.ui.Navigator;
 import com.hospital.hqms.ui.components.Fx;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 /** JavaFX entry point. Run with:  mvnw javafx:run */
@@ -28,14 +30,19 @@ public class HospitalApp extends Application {
         });
 
         Navigator navigator = new Navigator();
-        Scene scene = new Scene(navigator.getRoot(), 1360, 860);
+        // Fit the window to the screen (laptops with display scaling have little vertical room).
+        Rectangle2D screen = Screen.getPrimary().getVisualBounds();
+        double width = Math.min(1440, screen.getWidth() - 40);
+        double height = Math.min(900, screen.getHeight() - 40);
+        Scene scene = new Scene(navigator.getRoot(), width, height);
         scene.getStylesheets().add(Fx.STYLESHEET);
         navigator.showHome();
 
         stage.setTitle("MediQueue - Hospital Queue Management System");
-        stage.setMinWidth(1100);
-        stage.setMinHeight(700);
+        stage.setMinWidth(Math.min(1200, width));
+        stage.setMinHeight(Math.min(700, height));
         stage.setScene(scene);
+        stage.centerOnScreen();
         stage.show();
     }
 

@@ -1,6 +1,12 @@
 package com.hospital.hqms.ui.components;
 
+import javafx.animation.FadeTransition;
+import javafx.animation.PauseTransition;
+import javafx.animation.SequentialTransition;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.stage.Popup;
+import javafx.stage.Window;
+import javafx.util.Duration;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -29,15 +35,115 @@ public final class Fx {
     private Fx() {
     }
 
-    /** Round coloured icon with a short text glyph (avoids relying on emoji fonts). */
-    public static StackPane icon(String glyph, String accentClass) {
-        Label l = new Label(glyph);
-        l.getStyleClass().add("icon-glyph");
-        StackPane p = new StackPane(l);
-        p.getStyleClass().addAll("icon-circle", accentClass);
-        p.setMinSize(52, 52);
-        p.setMaxSize(52, 52);
+    /** Rounded, softly tinted square holding a vector icon - used on KPI cards and tiles. */
+    public static StackPane iconChip(String iconPath, String accentClass, double size) {
+        StackPane p = new StackPane(Icons.of(iconPath, size * 0.48));
+        p.getStyleClass().addAll("icon-chip", accentClass);
+        p.setMinSize(size, size);
+        p.setMaxSize(size, size);
         return p;
+    }
+
+    /** Circle with a person's initials, e.g. "AM" for Anjali Mehta. */
+    public static StackPane avatar(String name, double size) {
+        String[] parts = name.replace("Dr. ", "").trim().split("\\s+");
+        String initials = (parts[0].substring(0, 1) + (parts.length > 1 ? parts[parts.length - 1].substring(0, 1) : "")).toUpperCase();
+        Label l = new Label(initials);
+        l.getStyleClass().add("avatar-text");
+        l.setStyle("-fx-font-size: " + Math.round(size * 0.38) + "px;");
+        StackPane p = new StackPane(l);
+        p.getStyleClass().addAll("avatar", "avatar-" + Math.abs(name.hashCode() % 6));
+        p.setMinSize(size, size);
+        p.setMaxSize(size, size);
+        return p;
+    }
+
+    /**
+     * KPI tile: icon, big number, caption and an optional trend line underneath.
+     * The value label is passed in so the caller can update it later.
+     */
+    public static VBox kpi(String caption, Label value, String iconPath, String accentClass, Label trend) {
+        value.getStyleClass().add("kpi-value");
+        Label c = new Label(caption);
+        c.getStyleClass().add("kpi-caption");
+        HBox top = row(10, c, spacer(), iconChip(iconPath, accentClass, 38));
+        VBox box = new VBox(6, top, value);
+        if (trend != null) {
+            trend.getStyleClass().add("kpi-trend");
+            box.getChildren().add(trend);
+        }
+        box.getStyleClass().addAll("card", "kpi-card");
+        box.setPadding(new Insets(18, 20, 18, 20));
+        HBox.setHgrow(box, Priority.ALWAYS);
+        box.setMaxWidth(Double.MAX_VALUE);
+        return box;
+    }
+
+    /** Card title row with an optional subtitle and right-aligned actions. */
+    public static HBox cardHeader(String title, String subtitle, Node... actions) {
+        Label t = new Label(title);
+        t.getStyleClass().add("card-title");
+        VBox text = new VBox(2, t);
+        if (subtitle != null) {
+            Label s = new Label(subtitle);
+            s.getStyleClass().add("card-subtitle");
+            s.setWrapText(true);
+            text.getChildren().add(s);
+        }
+        HBox h = new HBox(10, text, spacer());
+        h.getChildren().addAll(actions);
+        h.setAlignment(Pos.CENTER_LEFT);
+        return h;
+    }
+
+    public static Button iconButton(String text, String iconPath, String styleClass) {
+        Button b = new Button(text);
+        b.setGraphic(Icons.of(iconPath, 15));
+        b.getStyleClass().add(styleClass);
+        b.setGraphicTextGap(8);
+        return b;
+    }
+
+    public static VBox emptyState(String iconPath, String title, String message) {
+        Label t = new Label(title);
+        t.getStyleClass().add("empty-title");
+        Label m = muted(message);
+        m.setAlignment(Pos.CENTER);
+        VBox box = new VBox(8, iconChip(iconPath, "accent-slate", 48), t, m);
+        box.setAlignment(Pos.CENTER);
+        box.setPadding(new Insets(28));
+        return box;
+    }
+
+    /** Small notification that slides in at the bottom-right of the window and fades away. */
+    public static void toast(Node anchor, String message, boolean success) {
+        if (anchor == null || anchor.getScene() == null) {
+            return;
+        }
+        Window window = anchor.getScene().getWindow();
+        Label text = new Label(message);
+        text.setWrapText(true);
+        text.setMaxWidth(320);
+        HBox box = new HBox(10, Icons.of(success ? Icons.CHECK : Icons.WARNING, 18), text);
+        box.setAlignment(Pos.CENTER_LEFT);
+        box.getStyleClass().addAll("toast", success ? "toast-success" : "toast-error");
+        box.getStylesheets().add(STYLESHEET);
+
+        Popup popup = new Popup();
+        popup.getContent().add(box);
+        popup.setAutoFix(true);
+        popup.show(window);
+        popup.setX(window.getX() + window.getWidth() - box.getWidth() - 32);
+        popup.setY(window.getY() + window.getHeight() - box.getHeight() - 32);
+
+        FadeTransition in = new FadeTransition(Duration.millis(180), box);
+        in.setFromValue(0);
+        in.setToValue(1);
+        FadeTransition out = new FadeTransition(Duration.millis(400), box);
+        out.setToValue(0);
+        SequentialTransition seq = new SequentialTransition(in, new PauseTransition(Duration.seconds(2.6)), out);
+        seq.setOnFinished(e -> popup.hide());
+        seq.play();
     }
 
     public static Label title(String text) {
@@ -141,6 +247,7 @@ public final class Fx {
             return new SimpleStringProperty(v == null ? "" : v.toString());
         });
         col.setPrefWidth(width);
+        col.setMinWidth(width * 0.85);
         return col;
     }
 
@@ -166,6 +273,7 @@ public final class Fx {
     public static Label badge(String text) {
         Label l = new Label(text);
         l.getStyleClass().addAll("badge", "badge-" + text.toLowerCase().replaceAll("[^a-z]", ""));
+        l.setMinWidth(Region.USE_PREF_SIZE);
         return l;
     }
 

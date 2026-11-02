@@ -162,7 +162,7 @@ public class PaymentPane extends HBox {
             Patient p = patientService.findByPhone(phone.getText());
             List<Appointment> unpaid = appointmentService.findByPatient(p).stream()
                     .filter(a -> a.getPaymentStatus() == PaymentStatus.PENDING)
-                    .filter(a -> a.getStatus() != AppointmentStatus.CANCELLED)
+                    .filter(a -> a.getStatus() != AppointmentStatus.CANCELLED && a.getStatus() != AppointmentStatus.NO_SHOW)
                     .toList();
             appointment.getItems().setAll(unpaid);
             if (unpaid.isEmpty()) {

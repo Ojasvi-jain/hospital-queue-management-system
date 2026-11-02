@@ -28,6 +28,15 @@ public class AppointmentService {
         return doctorDao.findAvailable();
     }
 
+    /** Every doctor, including those currently on leave (for the doctor directory). */
+    public List<Doctor> getAllDoctors() {
+        return doctorDao.findAll();
+    }
+
+    public void setDoctorAvailable(Doctor doctor, boolean available) {
+        doctorDao.setAvailable(doctor.getId(), available);
+    }
+
     /** All of the doctor's slots on that day minus the ones already booked. */
     public List<LocalTime> getFreeSlots(Doctor doctor, LocalDate date) {
         Set<LocalTime> booked = appointmentDao.findBookedSlots(doctor.getId(), date);
