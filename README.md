@@ -42,7 +42,7 @@ It runs fully offline on your own machine. There is no cloud hosting, no databas
 ### Run
 
 ```bash
-git clone https://github.com/<your-username>/hospital-queue-management-system.git
+git clone https://github.com/Ojasvi-jain/hospital-queue-management-system.git
 cd hospital-queue-management-system
 ```
 
