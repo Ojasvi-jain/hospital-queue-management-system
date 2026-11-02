@@ -4,6 +4,8 @@ A desktop application for a hospital OPD (out-patient department). Patients can 
 
 It runs fully offline on your own machine. There is no cloud hosting, no database server to install and no external services.
 
+▶ **[Watch the demo video](demo/MediQueue-demo.mp4)** (about 3 minutes, captioned). It covers patient registration, booking, payment and token tracking, then the reception dashboard, live queue, records and the display board.
+
 ---
 
 ## Screens at a glance
