@@ -213,3 +213,4 @@ The code follows a layered architecture: **UI → Service → DAO → Database**
 - **`mvnw.cmd` is not recognized** in PowerShell: run it as `.\mvnw.cmd javafx:run`.
 - **The app shows old dates**: sample appointments are created relative to the day the database was first made. Click **Reset Demo Data** (reception desk) to regenerate today's queues.
 - **Need a clean database**: close the app and delete the `data/` folder.
+- **The window is cut off on a small or high-DPI screen**: the app sizes itself to your screen at start-up; maximise the window or lower the display scaling if a page still does not fit.
